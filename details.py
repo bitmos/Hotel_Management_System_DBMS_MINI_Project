@@ -10,6 +10,7 @@ import random
 from tkinter import messagebox
 class DetailsRoom:
     def __init__(self,root,var_hotel):
+        self.var_hotel=var_hotel
         self.root=root
         self.root.title("Hotel Management System")
         self.root.geometry("1300x550+234+100")
@@ -81,7 +82,7 @@ class DetailsRoom:
                 try:
                     conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
                     my_cur=conn.cursor()
-                    my_cur.execute("insert into details values(%s,%s,%s)",(self.var_floor.get(),self.var_roomno.get(),self.var_roomtype.get()))
+                    my_cur.execute("insert into details values(%s,%s,%s,%s,%s)",(self.var_floor.get(),self.var_roomno.get(),self.var_roomtype.get(),"False",self.var_hotel))
                     conn.commit()
                     conn.close()
                     self.fetch_data()

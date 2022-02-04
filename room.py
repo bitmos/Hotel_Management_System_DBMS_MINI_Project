@@ -33,7 +33,7 @@ class RoomBooking:
         lbl_title.place(x=0,y=0,width=1300,height=50)
 
         labelframe=LabelFrame(self.root,bd=2,relief=RIDGE,text="BOOKING DETAILS",padx=2,font=("times new roman",15,"bold"))
-        labelframe.place(x=5,y=50,width=455,height=490)
+        labelframe.place(x=5,y=50,width=455,height=590)
 
         lbl_cust_id=Label(labelframe,text="Customer ID",font=("arial",15,"bold"),padx=2,pady=6)
         lbl_cust_id.grid(row=0,column=0,sticky=W)
@@ -85,7 +85,7 @@ class RoomBooking:
 
         conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
         my_cur=conn.cursor()
-        my_cur.execute("select RoomNumber from details")
+        my_cur.execute("select RoomNumber from details where Booked=%s AND hotel_id=%s",("False",self.var_hotel))
         rows=my_cur.fetchall()
         conn.commit()
         conn.close()
@@ -119,7 +119,7 @@ class RoomBooking:
         btn_bill.grid(row=10,column=0,padx=1,sticky=W)
 
         btn_frame=Frame(labelframe,bd=2,relief=RIDGE)
-        btn_frame.place(x=0,y=400,width=412,height=40)
+        btn_frame.place(x=0,y=435,width=412,height=40)
 
         btn_add=Button(btn_frame,text="Add",font=("arial",13,"bold"),bg="black",fg="gold",width=9,command=self.add_data)
         btn_add.grid(row=0,column=0,padx=1)
@@ -195,6 +195,7 @@ class RoomBooking:
                     my_cur=conn.cursor()
                     my_cur.execute("insert into booking values(%s,%s,%s,%s,%s,%s,%s,%s,%s)",(self.booking_id.get(),self.var_id.get(),self.var_hotel,self.book_date.get(),self.checkout.get(),self.total_room.get(),self.payment.get(),self.room_number.get(),self.days.get()))
                     my_cur.execute("insert into services values(%s,%s)",(self.booking_id.get(),self.services.get()))
+                    my_cur.execute("update details set Booked=%s where RoomNumber=%s",("True",self.room_number.get()))
                     conn.commit()
                     conn.close()
                     self.fetch_data()
@@ -236,7 +237,7 @@ class RoomBooking:
     def fetch_data(self):
         conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
         my_cur=conn.cursor()
-        my_cur.execute("Select booking.Booking_ID, Customer_ID,Check_in_date,Check_out_date,Total_Rooms,Payment,Room_Number,Name,No_of_Days from booking JOIN services ON booking.Booking_ID= services.Booking_ID ")
+        my_cur.execute("Select booking.Booking_ID, Customer_ID,Check_in_date,Check_out_date,Total_Rooms,Payment,Room_Number,Name,No_of_Days from booking JOIN services ON booking.Booking_ID= services.Booking_ID  where booking.hotel_id=%s",(self.var_hotel,))
         rows=my_cur.fetchall()
         if len(rows)!=0:
             self.room_Details.delete(*self.room_Details.get_children())
@@ -342,7 +343,7 @@ class RoomBooking:
         if(self.services.get()=="Breakfast" ):
             q1=float(2000)
             q2=float(self.days.get())
-            q4=float(q1+q2)
+            q4=float(q1*q2)
             Tax="Rs."+ str("%.2f"%((q4)*0.1))
             total="Rs."+str("%.2f"%(q4+((q4)*0.1)))
             self.payment.set(total)
@@ -350,7 +351,7 @@ class RoomBooking:
         elif(self.services.get()=="Dinner" ):
             q1=float(2500)
             q2=float(self.days.get())
-            q4=float(q1+q2)
+            q4=float(q1*q2)
             Tax="Rs."+ str("%.2f"%((q4)*0.1))
             total="Rs."+str("%.2f"%(q4+((q4)*0.1)))
             self.payment.set(total)
@@ -358,7 +359,7 @@ class RoomBooking:
         elif(self.services.get()=="Meals" ):
             q1=float(1500)
             q2=float(self.days.get())
-            q4=float(q1+q2)
+            q4=float(q1*q2)
             Tax="Rs."+ str("%.2f"%((q4)*0.1))
             total="Rs."+str("%.2f"%(q4+((q4)*0.1)))
             self.payment.set(total)
@@ -368,17 +369,28 @@ class RoomBooking:
         my_cur=conn.cursor()
         # print("select * from customer where"+ str(self.search_var.get())+"= '%s'",(str(self.txt_search.get())))
         print(self.txt_search.get())
-        my_cur.execute("select Booking_ID,Customer_ID,Check_in_date,Check_out_date,Total_Rooms,Payment,Room_Number,No_of_Days from booking where  Booking_ID LIKE '%"+str(self.txt_search.get())+"%'")
-        rows=my_cur.fetchall()
-        my_cur.execute("select * from services where Booking_ID LIKE '%"+str(self.txt_search.get())+"%'")
-        rows2=my_cur.fetchall()
-        if len(rows) !=0 and len(rows2) !=0 :
-            self.room_Details.delete(*self.room_Details.get_children())
-            for i,j in zip(rows,rows2):
-                print((j[1],))
-                i=i[:7]+(j[1],i[-1])
-                print(i)
-                self.room_Details.insert("",END,values=i)
+        if self.search_var.get() == "Booking ID":
+            my_cur.execute("select Booking_ID,Customer_ID,Check_in_date,Check_out_date,Total_Rooms,Payment,Room_Number,No_of_Days from booking where  Booking_ID LIKE '%"+str(self.txt_search.get())+"%' AND booking.hotel_id=%s",(self.var_hotel,))
+            rows=my_cur.fetchall()
+            my_cur.execute("select * from services where Booking_ID LIKE '%"+str(self.txt_search.get())+"%'")
+            rows2=my_cur.fetchall()
+            if len(rows) !=0 and len(rows2) !=0 :
+                self.room_Details.delete(*self.room_Details.get_children())
+                for i,j in zip(rows,rows2):
+                    i=i[:7]+(j[1],i[-1])
+                    self.room_Details.insert("",END,values=i)
+        else:
+            my_cur.execute("select Booking_ID,Customer_ID,Check_in_date,Check_out_date,Total_Rooms,Payment,Room_Number,No_of_Days from booking where  Room_Number LIKE '%"+str(self.txt_search.get())+"%'")
+            rows=my_cur.fetchall()
+            id=rows[0][0]
+            my_cur.execute("select * from services where Booking_ID LIKE '%"+str(id)+"%'")
+            rows2=my_cur.fetchall()
+            if len(rows) !=0 and len(rows2) !=0 :
+                self.room_Details.delete(*self.room_Details.get_children())
+                for i,j in zip(rows,rows2):
+                    i=i[:7]+(j[1],i[-1])
+                    self.room_Details.insert("",END,values=i)
+        
 
 
 

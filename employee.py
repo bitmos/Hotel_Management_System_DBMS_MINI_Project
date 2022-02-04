@@ -7,7 +7,7 @@ import mysql.connector
 import random
 
 from tkinter import messagebox
-class Cust_win():
+class Employee():
     def __init__(self,root,var_hotel):
         self.root=root
         self.root.title("Hotel Management System")
@@ -25,7 +25,7 @@ class Cust_win():
         self.var_gender=StringVar()
 
 
-        lbl_title=Label(self.root,text="ADD CUSTOMER DETAILS",font=("times new roman",18,"bold"),bg="black",fg="gold",bd=4,relief=RIDGE)
+        lbl_title=Label(self.root,text="ADD Employee DETAILS",font=("times new roman",18,"bold"),bg="black",fg="gold",bd=4,relief=RIDGE)
         lbl_title.place(x=0,y=0,width=1300,height=50)
 
 
@@ -34,7 +34,7 @@ class Cust_win():
 
 
 
-        lbl_cust_id=Label(labelframe,text="Customer ID",font=("arial",15,"bold"),padx=2,pady=6)
+        lbl_cust_id=Label(labelframe,text="Employee ID",font=("arial",15,"bold"),padx=2,pady=6)
         lbl_cust_id.grid(row=0,column=0,sticky=W)
 
         entry_id=ttk.Entry(labelframe,textvariable=self.var_id,width=29,font=("arial",13,"bold"),state="readonly")
@@ -55,25 +55,7 @@ class Cust_win():
         combo_gender.grid(row=2,column=1)
 
 
-        lbl_cust_country=Label(labelframe,text="Country",font=("arial",15,"bold"),padx=2,pady=6)
-        lbl_cust_country.grid(row=3,column=0,sticky=W)
-
-        entry_country=ttk.Entry(labelframe,textvariable=self.var_country,width=29,font=("arial",13,"bold"))
-        entry_country.grid(row=3,column=1)
-
-        lbl_cust_city=Label(labelframe,text="City",font=("arial",15,"bold"),padx=2,pady=6)
-        lbl_cust_city.grid(row=4,column=0,sticky=W)
-
-        entry_city=ttk.Entry(labelframe,textvariable=self.var_city,width=29,font=("arial",13,"bold"))
-        entry_city.grid(row=4,column=1)
-
-        lbl_cust_zipcode=Label(labelframe,text="Zipcode *",font=("arial",15,"bold"),padx=2,pady=6)
-        lbl_cust_zipcode.grid(row=5,column=0,sticky=W)
-
-        entry_zipcode=ttk.Entry(labelframe,textvariable=self.var_zipcode,width=29,font=("arial",13,"bold"))
-        entry_zipcode.grid(row=5,column=1)
-
-        lbl_cust_cardno=Label(labelframe,text="Card Number",font=("arial",15,"bold"),padx=2,pady=6)
+        lbl_cust_cardno=Label(labelframe,text="Phone Number",font=("arial",15,"bold"),padx=2,pady=6)
         lbl_cust_cardno.grid(row=6,column=0,sticky=W)
 
         entry_cardno=ttk.Entry(labelframe,textvariable=self.var_cardnumber,width=29,font=("arial",13,"bold"))
@@ -103,7 +85,7 @@ class Cust_win():
 
         self.search_var=StringVar()
         combo_search=ttk.Combobox(tableframe,textvariable=self.search_var,font=("arial",13,"bold"),width=24,state="read only")
-        combo_search["value"]=("ID","Name")
+        combo_search["value"]=("Employee_ID","Name")
         combo_search.current(0)
         combo_search.grid(row=0,column=1,padx=1)
 
@@ -124,21 +106,18 @@ class Cust_win():
         scroll_x=ttk.Scrollbar(deatilsframe,orient=HORIZONTAL)
         scroll_y=ttk.Scrollbar(deatilsframe,orient=VERTICAL)
 
-        self.Cust_Details=ttk.Treeview(deatilsframe,columns=("ID","Name","Gender","Country","City","ZipCode","Card Number"),xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
+        self.Cust_Details=ttk.Treeview(deatilsframe,columns=("ID","Name","Phone Number","Gender"),xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
         scroll_x.pack(side=BOTTOM,fill=X)
         scroll_y.pack(side=RIGHT,fill=Y)
 
         scroll_x.config(command=self.Cust_Details.xview)
         scroll_y.config(command=self.Cust_Details.yview)
 
-        self.Cust_Details.heading("ID",text="Customer ID")
-        self.Cust_Details.heading("Name",text="Customer Name")
+        self.Cust_Details.heading("ID",text="Employee ID")
+        self.Cust_Details.heading("Name",text="Employee Name")
+        
+        self.Cust_Details.heading("Phone Number",text="Phone Number")
         self.Cust_Details.heading("Gender",text="Gender")
-        self.Cust_Details.heading("Country",text="Country")
-       
-        self.Cust_Details.heading("City",text="City")
-        self.Cust_Details.heading("ZipCode",text="ZipCode")
-        self.Cust_Details.heading("Card Number",text="Card Number")
 
         self.Cust_Details["show"]="headings"
         self.Cust_Details.pack(fill=BOTH,expand=1)
@@ -147,18 +126,18 @@ class Cust_win():
 
 
     def add_data(self):
-        if self.var_zipcode.get() == "" or self.var_name.get()=="":
+        if  self.var_name.get()=="":
             messagebox.showerror("Error","Please fill all the fields",parent=self.root)
         else:
             try :
                 conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
                 my_cur=conn.cursor()
-                my_cur.execute("insert into customer values(%s,%s,%s,%s,%s)",(self.var_id.get(),self.var_name.get(),self.var_cardnumber.get(),self.var_gender.get(),self.var_hotel))
-                my_cur.execute("insert into address values(%s,%s,%s,%s,%s)",(self.var_id.get(),self.var_country.get(),self.var_city.get(),self.var_zipcode.get(),self.var_hotel))
+                my_cur.execute("insert into employee values(%s,%s,%s,%s,%s)",(self.var_id.get(),self.var_name.get(),self.var_cardnumber.get(),self.var_gender.get(),self.var_hotel))
+                # my_cur.execute("insert into address values(%s,%s,%s,%s,%s,%s)",("",self.var_country.get(),self.var_city.get(),self.var_zipcode.get(),self.var_hotel,self.var_id.get()))
                 conn.commit()
                 conn.close()
                 self.fetch_data()
-                messagebox.showinfo("Success","Customer has been added",parent=self.root)
+                messagebox.showinfo("Success","Employee has been added",parent=self.root)
             except Exception as es:
                 messagebox.showerror("Error",f"Something went wrong:{str(es)}",parent=self.root)
 
@@ -166,7 +145,7 @@ class Cust_win():
         conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
         my_cur=conn.cursor()
         print(type(self.var_hotel))
-        my_cur.execute("Select customer.ID, customer.Name,customer.Gender,address.Country,address.City,address.ZipCode,customer.`Card Number` from address  JOIN customer ON customer.ID= address.Customer_ID where address.hotel_id=%s",(self.var_hotel,))
+        my_cur.execute("Select * from employee where hotel_id=%s",(self.var_hotel,))
         rows=my_cur.fetchall()
         print(rows)
         if len(rows)!=0:
@@ -181,11 +160,9 @@ class Cust_win():
         row=content["values"]
         self.var_id.set(row[0])
         self.var_name.set(row[1])
-        self.var_gender.set(row[2])
-        self.var_country.set(row[3])
-        self.var_city.set(row[4])
-        self.var_zipcode.set(row[5])
-        self.var_cardnumber.set(row[6])
+        self.var_cardnumber.set(row[2])
+        self.var_gender.set(row[3])
+        
 
     def update(self):
         if self.var_name.get()=="":
@@ -193,12 +170,12 @@ class Cust_win():
         else:
             conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
             my_cur=conn.cursor()
-            my_cur.execute("update customer set Name=%s,`Card Number`=%s,Gender=%s where ID=%s",(self.var_name.get(),self.var_cardnumber.get(),self.var_gender.get(),self.var_id.get()))
-            my_cur.execute("update address set Country=%s,City=%s,ZipCode=%s where Customer_ID=%s",(self.var_country.get(),self.var_city.get(),self.var_zipcode.get(),self.var_id.get()))
+            my_cur.execute("update employee set Name=%s,Phone_Number=%s,Gender=%s where ID=%s",(self.var_name.get(),self.var_cardnumber.get(),self.var_gender.get(),self.var_id.get()))
+            # my_cur.execute("update address set Country=%s,City=%s,ZipCode=%s where Employee_ID=%s",(self.var_country.get(),self.var_city.get(),self.var_zipcode.get(),self.var_id.get()))
             conn.commit()
             self.fetch_data()
             conn.close()
-            messagebox.showinfo("Update","Customer Details Updated",parent=self.root)
+            messagebox.showinfo("Update","Employee Details Updated",parent=self.root)
             
 
     def delete(self):
@@ -206,7 +183,7 @@ class Cust_win():
         if delete>0:
             conn=mysql.connector.connect(host="localhost",username="root",password="",database="hotel")
             my_cur=conn.cursor()
-            query="delete from customer where ID=%s"
+            query="delete from employee where ID=%s"
             values=(self.var_id.get(),)
             my_cur.execute(query,values)
             # query="delete from address where ID=%s"
@@ -233,34 +210,23 @@ class Cust_win():
         my_cur=conn.cursor()
         # print("select * from customer where"+ str(self.search_var.get())+"= '%s'",(str(self.txt_search.get())))
         if self.search_var.get() == "ID":
-            my_cur.execute("select * from customer where "+ str(self.search_var.get())+" LIKE '%"+str(self.txt_search.get())+"%'")
+            my_cur.execute("select * from employee where "+ str(self.search_var.get())+" LIKE '%"+str(self.txt_search.get())+"%'")
             rows=my_cur.fetchall()
-            my_cur.execute("select * from address where Customer_ID LIKE '%"+str(self.txt_search.get())+"%'")
-            rows2=my_cur.fetchall()
-            if len(rows) !=0 and len(rows2) !=0 :
+            # my_cur.execute("select * from address where Employee_ID LIKE '%"+str(self.txt_search.get())+"%'")
+            # rows2=my_cur.fetchall()
+            if len(rows) !=0:
                 self.Cust_Details.delete(*self.Cust_Details.get_children())
-                for i,j in zip(rows,rows2):
-                    print( "j is",j)
-                    
-
-                    i=i[:-1]+j[1:-1]
-                    print( "i is",(i[2],))
-                    i=i[:2]+i[3:]+(i[2],)
-                    
+                for i in rows:
                     self.Cust_Details.insert("",END,values=i)
             
             conn.commit()
         else :
-            my_cur.execute("select * from customer where "+ str(self.search_var.get())+" LIKE '%"+str(self.txt_search.get())+"%'")
+            my_cur.execute("select * from employee where "+ str(self.search_var.get())+" LIKE '%"+str(self.txt_search.get())+"%'")
             rows=my_cur.fetchall()
-            id=rows[0][0]
-            my_cur.execute("select * from address where Customer_ID LIKE '%"+str(id)+"%'")
-            rows2=my_cur.fetchall()
-            if len(rows) !=0 and len(rows2) !=0 :
+            if len(rows) !=0:
                 self.Cust_Details.delete(*self.Cust_Details.get_children())
-                for i,j in zip(rows,rows2):
-                    i=i+j[1:-1]
-                    i=i[:2]+i[3:]+tuple(i[2])
+                for i in rows:
+                    self.Cust_Details.insert("",END,values=i)
                     self.Cust_Details.insert("",END,values=i)
 
         
@@ -270,5 +236,5 @@ class Cust_win():
 
 if __name__=="__main__":
     root=Tk()
-    obj=Cust_win(root)
+    obj=Employee(root)
     root.mainloop()
